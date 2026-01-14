@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniCarbon Tracker - Shared Commute Edition</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for high-quality visuals -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom Range Slider Styling */
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #2563eb;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+
+        /* Modal Blur Effect */
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+            background-color: rgba(15, 23, 42, 0.6);
+        }
+
+        /* Button Active States */
+        .btn-active-primary {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            border-color: #1e293b !important;
+        }
+
+        .mode-active {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            color: #1d4ed8 !important;
+        }
+
+        .day-active {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
+
+        /* Animations */
+        .animate-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Custom scrollbar for commuter list */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- Methodology Modal -->
+    <div id="methodologyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-20">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i data-lucide="book-open" class="text-blue-500 w-6 h-6"></i>
+                    Calculation Methodology
+                </h2>
+                <button onclick="toggleModal(false)" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-8 text-sm leading-relaxed text-slate-600">
+                <section>
+                    <h3 class="font-bold text-slate-900 text-base mb-3">1. Core Equations</h3>
+                    <div class="bg-slate-50 p-5 rounded-2xl space-y-4 border border-slate-100">
+                        <div>
+                            <p class="font-semibold text-slate-700 mb-1">Weekly Distance (Dw):</p>
+                            <code class="text-blue-600 font-bold block bg-white p-3 rounded border border-slate-200">
+                                Dw = d × 2 × n
+                            </code>
+                            <p class="text-[11px] mt-1 italic text-slate-400">Where d is one-way distance and n is days per week.</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-700 mb-1">Individual Weekly Emissions (Ew):</p>
+                            <code class="text-blue-600 font-bold block bg-white p-3 rounded border border-slate-200">
+                                Ew = (Dw × EF) / Occupants
+                            </code>
+                            <p class="text-[11px] mt-1 italic text-slate-400">Total vehicle emissions are shared equally among all people in the vehicle.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-slate-900 text-base mb-3">2. Emission Factors (kg CO2e/km)</h3>
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3">Type</th>
+                                    <th class="px-4 py-3">Gasoline</th>
+                                    <th class="px-4 py-3">Diesel</th>
+                                    <th class="px-4 py-3">Hybrid</th>
+                                    <th class="px-4 py-3">EV</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100" id="methodologyTableBody">
+                                <!-- Table content updated via script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-slate-900 text-base mb-3">3. Scientific References</h3>
+                    <ul class="space-y-3 text-xs">
+                        <li class="flex gap-3">
+                            <span class="bg-slate-100 w-5 h-5 flex items-center justify-center rounded shrink-0 font-bold">1</span>
+                            <span><strong>EPA:</strong> GHG Inventory Guidance (Carpooling reduces per-capita emissions by dividing total vehicle output).</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="bg-slate-100 w-5 h-5 flex items-center justify-center rounded shrink-0 font-bold">2</span>
+                            <span><strong>DEFRA:</strong> Public transport (Bus) factors are already calculated on a "per-passenger" average.</span>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+            
+            <div class="p-6 bg-slate-50 border-t border-slate-100">
+                <button onclick="toggleModal(false)" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-colors">
+                    Close Methodology
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen p-4 md:p-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold flex items-center gap-2">
+                        <i data-lucide="users" class="text-blue-600 w-8 h-8"></i>
+                        Department Carbon Tracker
+                    </h1>
+                    <p class="text-slate-500 font-medium">Shared commute & carpooling aggregate for teams</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleModal(true)" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 text-slate-400 hover:text-blue-500 transition-colors" title="Calculation Info">
+                        <i data-lucide="info" class="w-6 h-6"></i>
+                    </button>
+                    <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-100 flex items-center gap-3 text-white">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-widest leading-none mb-1 opacity-80">Dept. Total Weekly</p>
+                            <p class="text-lg font-extrabold" id="deptTotalWeekly">0.00 kg</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Entry Form -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <h2 class="text-lg font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="user-plus" class="text-blue-500 w-5 h-5"></i>
+                            Add Commuter
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <!-- Commuter Name -->
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Name / Category</label>
+                                <input type="text" id="commuterName" placeholder="e.g., John (Carpool Lead)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
+                            </div>
+
+                            <!-- Transport Mode Selection -->
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Transport Mode</label>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <button onclick="updateState({vehicleType: 'car'})" id="mode-car" class="py-3 px-3 rounded-2xl border-2 flex flex-col items-center gap-2 text-slate-400 border-slate-100 transition-all">
+                                        <i data-lucide="car" class="w-5 h-5"></i>
+                                        <span class="text-[10px] font-bold uppercase">Car</span>
+                                    </button>
+                                    <button onclick="updateState({vehicleType: 'motorcycle'})" id="mode-motorcycle" class="py-3 px-3 rounded-2xl border-2 flex flex-col items-center gap-2 text-slate-400 border-slate-100 transition-all">
+                                        <i data-lucide="bike" class="w-5 h-5"></i>
+                                        <span class="text-[10px] font-bold uppercase">Bike</span>
+                                    </button>
+                                    <button onclick="updateState({vehicleType: 'bus'})" id="mode-bus" class="py-3 px-3 rounded-2xl border-2 flex flex-col items-center gap-2 text-slate-400 border-slate-100 transition-all">
+                                        <i data-lucide="bus" class="w-5 h-5"></i>
+                                        <span class="text-[10px] font-bold uppercase">Bus</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Car-specific Options -->
+                            <div id="carOptions" class="space-y-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Engine</label>
+                                    <div class="flex flex-wrap gap-2" id="fuelSelector"></div>
+                                </div>
+                                <div id="sizeSection">
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Size</label>
+                                    <div class="flex flex-wrap gap-2" id="sizeSelector"></div>
+                                </div>
+                                <!-- Occupancy Selection -->
+                                <div id="occupancySection">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">People in Vehicle</label>
+                                        <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs font-bold" id="occupancyLabel">1 person</span>
+                                    </div>
+                                    <input type="range" id="occupancyInput" min="1" max="5" value="1" class="range-slider w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateState({occupancy: parseInt(this.value)})">
+                                </div>
+                            </div>
+
+                            <!-- Journey Details -->
+                            <div class="grid grid-cols-1 gap-6 pt-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-3">
+                                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Distance (One-Way)</label>
+                                        <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs font-bold" id="distanceLabel">10 km</span>
+                                    </div>
+                                    <input type="range" min="1" max="100" value="10" class="range-slider w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" oninput="updateState({distance: parseInt(this.value)})">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">Days per Week</label>
+                                    <div class="flex justify-between gap-1" id="daySelector"></div>
+                                </div>
+                            </div>
+
+                            <button onclick="addCommuter()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 rounded-2xl transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2 active:scale-95">
+                                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                                Add to Department
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department List & Stats -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Summary Stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Commuters</p>
+                            <p class="text-2xl font-black text-slate-800" id="statCommuters">0</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Yearly Dept. Impact</p>
+                            <p class="text-2xl font-black text-slate-800" id="statYearly">0 kg</p>
+                        </div>
+                        <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100 text-center">
+                            <p class="text-[10px] font-bold text-emerald-600 uppercase mb-2">Trees to Offset</p>
+                            <p class="text-2xl font-black text-emerald-700" id="statTrees">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Commuter List -->
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[650px] overflow-hidden">
+                        <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                            <h2 class="text-lg font-bold flex items-center gap-2">
+                                <i data-lucide="list" class="text-slate-400 w-5 h-5"></i>
+                                Commuter Breakdown
+                            </h2>
+                            <button onclick="clearList()" class="text-xs font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest">Clear All</button>
+                        </div>
+                        <div id="commuterList" class="flex-grow overflow-y-auto p-6 space-y-3 custom-scroll">
+                            <div class="h-full flex flex-col items-center justify-center text-slate-300 space-y-2 opacity-60">
+                                <i data-lucide="inbox" class="w-12 h-12"></i>
+                                <p class="font-bold">No commuters added yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-12 text-center text-slate-400 text-xs font-bold uppercase tracking-widest pb-8">
+                <p>© 2026 University Environmental Office • Shared Commute Analytics v1.2</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const EMISSION_FACTORS = {
+            gasoline: { compact: 0.15, sedan: 0.19, suv: 0.25, truck: 0.32 },
+            diesel: { compact: 0.14, sedan: 0.18, suv: 0.24, truck: 0.30 },
+            hybrid: { compact: 0.08, sedan: 0.10, suv: 0.13 },
+            electric: { all: 0.05 },
+            motorcycle: 0.08,
+            bus: 0.04 // Per-passenger estimate
+        };
+
+        // App State
+        let state = {
+            vehicleType: 'car',
+            fuelType: 'gasoline',
+            size: 'sedan',
+            distance: 10,
+            days: 5,
+            occupancy: 1
+        };
+
+        let departmentCommuters = [];
+
+        // UI Initialization
+        function init() {
+            lucide.createIcons();
+            renderTable();
+            updateUI();
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('methodologyModal');
+            modal.classList.toggle('hidden', !show);
+            document.body.style.overflow = show ? 'hidden' : 'auto';
+        }
+
+        function updateState(newState) {
+            state = { ...state, ...newState };
+            updateUI();
+        }
+
+        function addCommuter() {
+            const nameInput = document.getElementById('commuterName');
+            const name = nameInput.value.trim() || `Commuter #${departmentCommuters.length + 1}`;
+            
+            // Calculate emissions for this entry
+            let factor = 0;
+            if (state.vehicleType === 'bus') factor = EMISSION_FACTORS.bus;
+            else if (state.vehicleType === 'motorcycle') factor = EMISSION_FACTORS.motorcycle;
+            else if (state.fuelType === 'electric') factor = EMISSION_FACTORS.electric.all;
+            else factor = EMISSION_FACTORS[state.fuelType][state.size] || 0.19;
+
+            // Shared logic: total vehicle output divided by people inside
+            // For BUS, the factor 0.04 is already per-passenger.
+            const divisor = (state.vehicleType === 'bus') ? 1 : state.occupancy;
+            const weekly = (state.distance * 2 * state.days * factor) / divisor;
+
+            departmentCommuters.push({
+                id: Date.now(),
+                name: name,
+                weekly: weekly,
+                details: `${state.vehicleType}${state.vehicleType !== 'bus' ? ' ('+state.occupancy+' people)' : ''}`,
+                dist: state.distance,
+                days: state.days
+            });
+
+            nameInput.value = '';
+            renderCommuterList();
+            updateDeptStats();
+        }
+
+        function clearList() {
+            departmentCommuters = [];
+            renderCommuterList();
+            updateDeptStats();
+        }
+
+        function removeCommuter(id) {
+            departmentCommuters = departmentCommuters.filter(c => c.id !== id);
+            renderCommuterList();
+            updateDeptStats();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('methodologyTableBody');
+            const sizes = ['compact', 'sedan', 'suv', 'truck'];
+            tbody.innerHTML = sizes.map(size => `
+                <tr>
+                    <td class="px-4 py-2 font-bold capitalize">${size}</td>
+                    <td class="px-4 py-2">${EMISSION_FACTORS.gasoline[size] || '—'}</td>
+                    <td class="px-4 py-2">${EMISSION_FACTORS.diesel[size] || '—'}</td>
+                    <td class="px-4 py-2">${EMISSION_FACTORS.hybrid[size] || '—'}</td>
+                    <td class="px-4 py-2">${EMISSION_FACTORS.electric.all}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCommuterList() {
+            const list = document.getElementById('commuterList');
+            if (departmentCommuters.length === 0) {
+                list.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-300 space-y-2 opacity-60">
+                        <i data-lucide="inbox" class="w-12 h-12"></i>
+                        <p class="font-bold">No commuters added yet</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            list.innerHTML = departmentCommuters.slice().reverse().map(c => `
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center animate-in">
+                    <div>
+                        <p class="font-bold text-slate-800">${c.name}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider capitalize">${c.details} • ${c.dist}km • ${c.days} days</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <p class="font-black text-slate-700 leading-none">${c.weekly.toFixed(2)}</p>
+                            <p class="text-[8px] font-bold text-slate-400 uppercase">kg/wk</p>
+                        </div>
+                        <button onclick="removeCommuter(${c.id})" class="p-2 text-slate-300 hover:text-red-400 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function updateDeptStats() {
+            const totalWeekly = departmentCommuters.reduce((sum, c) => sum + c.weekly, 0);
+            const totalYearly = totalWeekly * 52;
+            const totalTrees = Math.ceil(totalYearly / 20);
+
+            document.getElementById('deptTotalWeekly').innerText = `${totalWeekly.toFixed(2)} kg`;
+            document.getElementById('statCommuters').innerText = departmentCommuters.length;
+            document.getElementById('statYearly').innerText = `${totalYearly.toFixed(0)} kg`;
+            document.getElementById('statTrees').innerText = totalTrees;
+        }
+
+        function updateUI() {
+            const carOpts = document.getElementById('carOptions');
+            const sizeSect = document.getElementById('sizeSection');
+            const occupancySect = document.getElementById('occupancySection');
+            
+            carOpts.style.display = (state.vehicleType === 'car' || state.vehicleType === 'motorcycle') ? 'block' : 'none';
+            sizeSect.style.display = (state.vehicleType === 'car' && state.fuelType !== 'electric') ? 'block' : 'none';
+            
+            // Occupancy slider logic
+            occupancySect.style.display = (state.vehicleType === 'car' || state.vehicleType === 'motorcycle') ? 'block' : 'none';
+            document.getElementById('occupancyLabel').innerText = `${state.occupancy} ${state.occupancy === 1 ? 'person' : 'people'}`;
+
+            renderModeButtons();
+            renderFuelButtons();
+            renderSizeButtons();
+            renderDayButtons();
+
+            document.getElementById('distanceLabel').innerText = `${state.distance} km`;
+        }
+
+        function renderModeButtons() {
+            ['car', 'motorcycle', 'bus'].forEach(m => {
+                const btn = document.getElementById(`mode-${m}`);
+                btn.classList.toggle('mode-active', state.vehicleType === m);
+            });
+        }
+
+        function renderFuelButtons() {
+            const cont = document.getElementById('fuelSelector');
+            const fuels = ['gasoline', 'diesel', 'hybrid', 'electric'];
+            cont.innerHTML = fuels.map(f => `
+                <button onclick="updateState({fuelType: '${f}'})" 
+                        class="px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${state.fuelType === f ? 'btn-active-primary' : 'bg-white text-slate-600 border-slate-200'}">
+                    ${f.charAt(0).toUpperCase() + f.slice(1)}
+                </button>
+            `).join('');
+        }
+
+        function renderSizeButtons() {
+            const cont = document.getElementById('sizeSelector');
+            const sizes = ['compact', 'sedan', 'suv', 'truck'];
+            cont.innerHTML = sizes.map(s => `
+                <button onclick="updateState({size: '${s}'})" 
+                        class="px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all ${state.size === s ? 'btn-active-primary' : 'bg-white text-slate-600 border-slate-200'}">
+                    ${s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+            `).join('');
+        }
+
+        function renderDayButtons() {
+            const cont = document.getElementById('daySelector');
+            cont.innerHTML = [1, 2, 3, 4, 5, 6, 7].map(d => `
+                <button onclick="updateState({days: ${d}})" 
+                        class="flex-1 py-2 text-[10px] font-black rounded-lg border-2 transition-all ${state.days === d ? 'day-active' : 'bg-white text-slate-400 border-slate-100'}">
+                    ${d}
+                </button>
+            `).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
