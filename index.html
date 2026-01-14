@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UniCarbon Tracker - Shared Commute Edition</title>
+    <title>UniCarbon Tracker - Professional Edition</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons for high-quality visuals -->
@@ -45,7 +45,6 @@
             background-color: rgba(15, 23, 42, 0.6);
         }
 
-        /* Button Active States */
         .btn-active-primary {
             background-color: #1e293b !important;
             color: #ffffff !important;
@@ -64,7 +63,6 @@
             border-color: #2563eb !important;
         }
 
-        /* Animations */
         .animate-in {
             animation: fadeIn 0.2s ease-out;
         }
@@ -73,7 +71,6 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* Custom scrollbar for commuter list */
         .custom-scroll::-webkit-scrollbar {
             width: 4px;
         }
@@ -85,7 +82,6 @@
             border-radius: 10px;
         }
 
-        /* Prevent zooming on inputs in iOS */
         input[type="text"] {
             font-size: 16px !important;
         }
@@ -99,7 +95,7 @@
             <div class="p-5 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-20">
                 <h2 class="text-lg md:text-xl font-bold flex items-center gap-2">
                     <i data-lucide="book-open" class="text-blue-500 w-5 h-5 md:w-6 md:h-6"></i>
-                    Methodology
+                    Estimation Equations
                 </h2>
                 <button onclick="toggleModal(false)" class="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-90">
                     <i data-lucide="x" class="w-6 h-6"></i>
@@ -107,45 +103,76 @@
             </div>
             
             <div class="p-5 space-y-6 text-sm leading-relaxed text-slate-600">
+                <!-- Variables Section -->
                 <section>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">1. Core Equations</h3>
+                    <h3 class="font-bold text-slate-900 text-base mb-3">1. Personal Weekly Footprint (Ew)</h3>
                     <div class="bg-slate-50 p-4 rounded-2xl space-y-4 border border-slate-100">
-                        <div>
-                            <p class="font-semibold text-slate-700 mb-1 text-xs">Indiv. Weekly Emissions (Ew):</p>
-                            <code class="text-blue-600 font-bold block bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto text-xs">
-                                Ew = ((d × 2 × n) × EF × Age_Mult) / Occupants
-                            </code>
+                        <code class="text-blue-600 font-bold block bg-white p-3 rounded-lg border border-slate-200 overflow-x-auto text-xs text-center shadow-sm">
+                            Ew = ((d × 2 × n) × EF × M) / O
+                        </code>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-[11px] border-t border-slate-100 pt-3">
+                            <p><span class="font-bold text-blue-600 uppercase">d:</span> One-way distance (km)</p>
+                            <p><span class="font-bold text-blue-600 uppercase">2:</span> Round-trip factor</p>
+                            <p><span class="font-bold text-blue-600 uppercase">n:</span> Days per week</p>
+                            <p><span class="font-bold text-blue-600 uppercase">EF:</span> Emission Factor (kg/km)</p>
+                            <p><span class="font-bold text-blue-600 uppercase">M:</span> Vehicle Age Multiplier</p>
+                            <p><span class="font-bold text-blue-600 uppercase">O:</span> Occupants (Carpool size)</p>
                         </div>
                     </div>
                 </section>
 
                 <section>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">2. Factors & Multipliers</h3>
-                    <div class="space-y-4">
-                        <p class="text-[11px] text-slate-500 italic">Multipliers are based on Bharat Stage (BS) and Euro emission norms.</p>
-                        <div class="overflow-x-auto rounded-xl border border-slate-100">
-                            <table class="w-full text-left text-[10px] md:text-xs">
-                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider">
-                                    <tr>
-                                        <th class="px-3 py-2">Era</th>
-                                        <th class="px-3 py-2">BS Norms</th>
-                                        <th class="px-3 py-2">Multiplier</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <tr><td class="px-3 py-2 font-bold text-red-500">Vintage</td><td class="px-3 py-2">BS-III / Early IV</td><td class="px-3 py-2 text-center">1.30x</td></tr>
-                                    <tr><td class="px-3 py-2 font-bold text-slate-600">Classic</td><td class="px-3 py-2">BS-IV / BS-VI</td><td class="px-3 py-2 text-center">1.00x</td></tr>
-                                    <tr><td class="px-3 py-2 font-bold text-emerald-600">Modern</td><td class="px-3 py-2">BS-VI Phase 2</td><td class="px-3 py-2 text-center">0.85x</td></tr>
-                                </tbody>
-                            </table>
+                    <h3 class="font-bold text-slate-900 text-base mb-3">2. Annual Projections</h3>
+                    <div class="bg-slate-50 p-4 rounded-2xl space-y-3 border border-slate-100 text-[11px]">
+                        <div class="flex justify-between items-center border-b border-white pb-2">
+                            <span class="font-semibold text-slate-700">Yearly Impact:</span>
+                            <code class="font-bold text-slate-900">Ew × 52 weeks</code>
                         </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-slate-700">Nature Offset (Trees):</span>
+                            <code class="font-bold text-emerald-600">(Yearly CO2) / 20</code>
+                        </div>
+                        <p class="text-[10px] text-slate-400 italic mt-2">*Calculation assumes one mature tree absorbs 20kg of CO2 per year.</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-slate-900 text-base mb-3">3. Green Potential</h3>
+                    <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-emerald-800 text-xs">
+                        <p class="font-bold mb-1">Savings = Current Ew - EV Shuttle Ew</p>
+                        <p>This reveals how much carbon is "erased" if you switch to the campus Electric Shuttle (which uses a high-efficiency 0.015 factor).</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">4. Emission Factors (EF) Table</h3>
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="w-full text-left text-[10px] md:text-xs">
+                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-bold">
+                                <tr>
+                                    <th class="px-3 py-2">Category</th>
+                                    <th class="px-3 py-2">Petrol</th>
+                                    <th class="px-3 py-2">Diesel</th>
+                                    <th class="px-3 py-2">Hybrid</th>
+                                    <th class="px-4 py-2">EV</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr><td class="px-3 py-2 font-bold">Compact</td><td class="px-3 py-2">0.150</td><td class="px-3 py-2">0.140</td><td class="px-3 py-2">0.080</td><td class="px-3 py-2">0.050</td></tr>
+                                <tr><td class="px-3 py-2 font-bold">Sedan</td><td class="px-3 py-2">0.190</td><td class="px-3 py-2">0.180</td><td class="px-3 py-2">0.100</td><td class="px-3 py-2">0.050</td></tr>
+                                <tr><td class="px-3 py-2 font-bold">SUV</td><td class="px-3 py-2">0.250</td><td class="px-3 py-2">0.240</td><td class="px-3 py-2">0.130</td><td class="px-3 py-2">0.050</td></tr>
+                                <tr><td class="px-3 py-2 font-bold">Truck</td><td class="px-3 py-2">0.320</td><td class="px-3 py-2">0.300</td><td class="px-3 py-2">—</td><td class="px-3 py-2">0.050</td></tr>
+                                <tr class="bg-slate-50/50"><td class="px-3 py-2 font-bold">Bike</td><td class="px-3 py-2">0.080</td><td class="px-3 py-2">—</td><td class="px-3 py-2">—</td><td class="px-3 py-2">0.020</td></tr>
+                                <tr class="bg-slate-50/50"><td class="px-3 py-2 font-bold">Bus</td><td class="px-3 py-2">—</td><td class="px-3 py-2">0.040</td><td class="px-3 py-2">0.025</td><td class="px-3 py-2">0.015</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </section>
             </div>
             
             <div class="p-5 bg-slate-50 border-t border-slate-100">
                 <button onclick="toggleModal(false)" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-2xl hover:bg-slate-800 transition-colors active:scale-[0.98]">
-                    Got it
+                    Understand Equations
                 </button>
             </div>
         </div>
@@ -158,22 +185,35 @@
             <header class="mb-6 md:mb-8 flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <h1 class="text-2xl md:text-3xl font-extrabold flex items-center gap-2">
-                        <i data-lucide="users" class="text-blue-600 w-7 h-7 md:w-8 md:h-8"></i>
-                        <span>UniCarbon <span class="text-blue-600">Dept</span></span>
+                        <i data-lucide="shield-check" class="text-blue-600 w-7 h-7 md:w-8 md:h-8"></i>
+                        <span>UniCarbon <span class="text-blue-600">Pro</span></span>
                     </h1>
-                    <button onclick="toggleModal(true)" class="p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-400 hover:text-blue-500 transition-colors active:scale-90">
+                    <button onclick="toggleModal(true)" class="p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-400 hover:text-blue-500 transition-colors active:scale-90" title="Methodology">
                         <i data-lucide="info" class="w-5 h-5"></i>
                     </button>
                 </div>
                 
-                <div class="bg-blue-600 p-4 rounded-2xl shadow-lg shadow-blue-100 flex items-center justify-between text-white">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-600 p-4 rounded-2xl shadow-lg shadow-blue-100 flex items-center justify-between text-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest leading-none mb-1 opacity-80 text-blue-100">Weekly CO2 Total</p>
+                                <p class="text-xl font-extrabold" id="deptTotalWeekly">0.00 kg</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase tracking-widest leading-none mb-1 opacity-80 text-blue-100">Weekly Dept Total</p>
-                            <p class="text-xl font-extrabold" id="deptTotalWeekly">0.00 kg</p>
+                    </div>
+                    <div class="bg-emerald-600 p-4 rounded-2xl shadow-lg shadow-emerald-100 flex items-center justify-between text-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                <i data-lucide="leaf" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest leading-none mb-1 opacity-80 text-emerald-100">Green Potential</p>
+                                <p class="text-xl font-extrabold" id="totalSavings">0.00 kg</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -183,21 +223,19 @@
                 <!-- Entry Form -->
                 <div class="lg:col-span-5 space-y-5">
                     <div class="bg-white rounded-3xl p-5 md:p-6 shadow-sm border border-slate-100">
-                        <h2 class="text-base font-bold mb-5 flex items-center gap-2">
+                        <h2 class="text-base font-bold mb-5 flex items-center gap-2 text-slate-700">
                             <i data-lucide="user-plus" class="text-blue-500 w-4 h-4"></i>
-                            New Commuter
+                            Commuter Profile
                         </h2>
                         
                         <div class="space-y-5">
-                            <!-- Commuter Name -->
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Name / Category</label>
-                                <input type="text" id="commuterName" placeholder="e.g. Finance Team" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all placeholder:text-slate-300">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Name</label>
+                                <input type="text" id="commuterName" placeholder="Staff or Student Name" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all placeholder:text-slate-300">
                             </div>
 
-                            <!-- Mode -->
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Mode</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Transport Mode</label>
                                 <div class="grid grid-cols-3 gap-2 md:gap-3">
                                     <button onclick="updateState({vehicleType: 'car'})" id="mode-car" class="py-3 rounded-xl border-2 flex flex-col items-center gap-1.5 text-slate-400 border-slate-100 transition-all active:scale-95">
                                         <i data-lucide="car" class="w-5 h-5"></i>
@@ -214,97 +252,92 @@
                                 </div>
                             </div>
 
-                            <!-- Options -->
                             <div id="configOptions" class="space-y-5 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Engine</label>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Engine Type</label>
                                     <div class="flex flex-wrap gap-2" id="fuelSelector"></div>
                                 </div>
                                 <div id="sizeSection">
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Size</label>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Vehicle Size</label>
                                     <div class="flex flex-wrap gap-2" id="sizeSelector"></div>
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">BS Norm / Age</label>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">BS Norm / Standards</label>
                                     <div class="grid grid-cols-3 gap-1.5" id="ageSelector"></div>
                                 </div>
                                 <div id="occupancySection">
                                     <div class="flex justify-between items-center mb-2">
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Occupancy</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Occupancy (People)</label>
                                         <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-extrabold" id="occupancyLabel">1 person</span>
                                     </div>
                                     <input type="range" id="occupancyInput" min="1" max="5" value="1" class="range-slider w-full cursor-pointer" oninput="updateState({occupancy: parseInt(this.value)})">
                                 </div>
                             </div>
 
-                            <!-- Journey -->
                             <div class="space-y-5">
                                 <div>
                                     <div class="flex justify-between items-center mb-3">
-                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Distance (1-Way)</label>
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">One-way Distance</label>
                                         <span class="text-blue-600 font-bold text-xs" id="distanceLabel">10 km</span>
                                     </div>
                                     <input type="range" min="1" max="100" value="10" class="range-slider w-full cursor-pointer" oninput="updateState({distance: parseInt(this.value)})">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 block">Days / Week</label>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 block">Days per Week</label>
                                     <div class="flex justify-between gap-1" id="daySelector"></div>
                                 </div>
                             </div>
 
                             <button onclick="addCommuter()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 rounded-2xl transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2 active:scale-[0.97]">
                                 <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                                Add Entry
+                                Save Commuter
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Stats & List -->
+                <!-- Stats & Visual Records -->
                 <div class="lg:col-span-7 space-y-5">
-                    <!-- Summary Stats -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-                        <div class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
-                            <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Users</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Total Users</p>
                             <p class="text-xl font-black text-slate-800" id="statCommuters">0</p>
                         </div>
-                        <div class="bg-white p-4 md:p-6 rounded-[1.5rem] shadow-sm border border-slate-100 flex flex-col justify-center items-center text-center">
-                            <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Yearly CO₂</p>
+                        <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Annual CO2</p>
                             <p class="text-xl font-black text-slate-800" id="statYearly">0 kg</p>
                         </div>
-                        <div class="bg-emerald-50 p-4 md:p-6 rounded-[1.5rem] border border-emerald-100 flex flex-col justify-center items-center text-center col-span-2 sm:col-span-1">
-                            <p class="text-[9px] font-bold text-emerald-600 uppercase mb-1">Tree Offset</p>
+                        <div class="bg-emerald-50 p-4 rounded-3xl border border-emerald-100 text-center col-span-2 sm:col-span-1">
+                            <p class="text-[9px] font-bold text-emerald-600 uppercase mb-1">Trees Needed</p>
                             <p class="text-xl font-black text-emerald-700" id="statTrees">0</p>
                         </div>
                     </div>
 
-                    <!-- Commuter List -->
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[400px] md:h-[650px] overflow-hidden">
-                        <div class="p-4 md:p-6 border-b border-slate-50 flex justify-between items-center">
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[500px] md:h-[700px] overflow-hidden">
+                        <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
                             <h2 class="text-base font-bold flex items-center gap-2">
-                                <i data-lucide="list" class="text-slate-400 w-4 h-4"></i>
-                                Records
+                                <i data-lucide="award" class="text-emerald-500 w-4 h-4"></i>
+                                Record Breakdown
                             </h2>
-                            <button onclick="clearList()" class="text-[10px] font-extrabold text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest active:scale-95">Clear</button>
+                            <button onclick="clearList()" class="text-[10px] font-extrabold text-red-400 hover:text-red-500 uppercase tracking-widest active:scale-90">Reset List</button>
                         </div>
-                        <div id="commuterList" class="flex-grow overflow-y-auto p-4 md:p-6 space-y-3 custom-scroll bg-slate-50/30">
-                            <div class="h-full flex flex-col items-center justify-center text-slate-300 space-y-3 opacity-60">
-                                <i data-lucide="inbox" class="w-10 h-10"></i>
-                                <p class="text-xs font-bold uppercase tracking-widest">List Empty</p>
+                        <div id="commuterList" class="flex-grow overflow-y-auto p-4 space-y-3 custom-scroll">
+                            <div class="h-full flex flex-col items-center justify-center text-slate-300 opacity-60">
+                                <i data-lucide="inbox" class="w-12 h-12"></i>
+                                <p class="text-xs font-bold uppercase mt-2 text-center px-4">Add a team member to see the departmental impact</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <footer class="mt-8 md:mt-12 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest pb-8">
-                <p>UniCarbon Analytics • 2026 Campus Office</p>
+            <footer class="mt-8 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest pb-8">
+                <p>© 2026 Campus Environmental registry • Global GHG Reporting Standards</p>
             </footer>
         </div>
     </div>
 
     <script>
-        // Constants
         const EMISSION_FACTORS = {
             car: {
                 gasoline: { compact: 0.15, sedan: 0.19, suv: 0.25, truck: 0.32 },
@@ -324,12 +357,11 @@
         };
 
         const AGE_MULTIPLIERS = {
-            vintage: 1.30, // BS-III or older
-            classic: 1.00, // BS-IV / early BS-VI
-            modern: 0.85   // BS-VI Phase 2
+            vintage: 1.30,
+            classic: 1.00,
+            modern: 0.85
         };
 
-        // App State
         let state = {
             vehicleType: 'car',
             fuelType: 'gasoline',
@@ -342,7 +374,6 @@
 
         let departmentCommuters = [];
 
-        // UI Initialization
         function init() {
             lucide.createIcons();
             updateUI();
@@ -356,13 +387,23 @@
 
         function updateState(newState) {
             state = { ...state, ...newState };
-            
-            // Safety: reset fuelType if it doesn't exist for new mode
             if (!EMISSION_FACTORS[state.vehicleType][state.fuelType]) {
                 state.fuelType = Object.keys(EMISSION_FACTORS[state.vehicleType])[0];
             }
-            
             updateUI();
+        }
+
+        function getCommuterBadge(emissions, mode, occupants) {
+            if (emissions < 5) return { icon: 'star', color: 'text-amber-500', label: 'Eco Legend' };
+            if (occupants > 1) return { icon: 'users', color: 'text-blue-500', label: 'Shared Hero' };
+            if (mode === 'bus') return { icon: 'bus', color: 'text-emerald-500', label: 'Transit Pro' };
+            return { icon: 'user', color: 'text-slate-400', label: 'Commuter' };
+        }
+
+        function calculateGreenPotential(weekly, distance, days) {
+            // Compare against the greenest option (Electric Bus: 0.015 kg/km)
+            const greenestChoiceEmissions = (distance * 2 * days * 0.015);
+            return Math.max(0, weekly - greenestChoiceEmissions);
         }
 
         function addCommuter() {
@@ -377,23 +418,24 @@
             const divisor = (state.vehicleType === 'bus') ? 1 : state.occupancy;
             
             const weekly = (state.distance * 2 * state.days * factor * ageMult) / divisor;
+            const savings = calculateGreenPotential(weekly, state.distance, state.days);
+            const badge = getCommuterBadge(weekly, state.vehicleType, state.occupancy);
 
             departmentCommuters.push({
                 id: Date.now(),
-                name: name,
-                weekly: weekly,
-                details: `${state.age.toUpperCase()} ${state.fuelType} ${state.vehicleType} (${divisor}p)`,
+                name,
+                weekly,
+                savings,
+                badge,
+                details: `${state.age.toUpperCase()} ${state.fuelType} ${state.vehicleType}`,
                 dist: state.distance,
-                days: state.days
+                days: state.days,
+                occupancy: divisor
             });
 
             nameInput.value = '';
             renderCommuterList();
             updateDeptStats();
-            
-            if (departmentCommuters.length === 1 && window.innerWidth < 1024) {
-                document.getElementById('commuterList').scrollIntoView({ behavior: 'smooth' });
-            }
         }
 
         function clearList() {
@@ -411,30 +453,42 @@
         function renderCommuterList() {
             const list = document.getElementById('commuterList');
             if (departmentCommuters.length === 0) {
-                list.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center text-slate-300 space-y-3 opacity-60">
-                        <i data-lucide="inbox" class="w-10 h-10"></i>
-                        <p class="text-xs font-bold uppercase tracking-widest">List Empty</p>
-                    </div>
-                `;
+                list.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-300 opacity-60"><i data-lucide="inbox" class="w-12 h-12"></i><p class="text-xs font-bold uppercase mt-2">No Records</p></div>`;
                 lucide.createIcons();
                 return;
             }
 
             list.innerHTML = departmentCommuters.slice().reverse().map(c => `
-                <div class="bg-white border border-slate-100 rounded-2xl p-3 md:p-4 flex justify-between items-center animate-in shadow-sm">
-                    <div class="flex-grow pr-2">
-                        <p class="font-bold text-slate-800 text-sm md:text-base truncate max-w-[140px] md:max-w-none">${c.name}</p>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider capitalize truncate">${c.details} • ${c.dist}km • ${c.days}d</p>
-                    </div>
-                    <div class="flex items-center gap-3 md:gap-4 shrink-0">
-                        <div class="text-right">
-                            <p class="font-black text-slate-700 leading-none text-sm md:text-base">${c.weekly.toFixed(1)}</p>
-                            <p class="text-[8px] font-bold text-slate-400 uppercase">kg/wk</p>
+                <div class="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col gap-3 animate-in shadow-sm hover:border-blue-100 transition-colors">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center ${c.badge.color}">
+                                <i data-lucide="${c.badge.icon}" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 flex items-center gap-2">
+                                    ${c.name} 
+                                    <span class="text-[8px] px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-black">${c.badge.label}</span>
+                                </p>
+                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">${c.details} (${c.occupancy}p)</p>
+                            </div>
                         </div>
-                        <button onclick="removeCommuter(${c.id})" class="p-2 text-slate-200 hover:text-red-400 transition-colors active:scale-90">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <button onclick="removeCommuter(${c.id})" class="text-slate-300 hover:text-red-400 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-50">
+                        <div class="flex gap-4">
+                            <div>
+                                <p class="text-[8px] font-bold text-slate-400 uppercase leading-none mb-1">Weekly Footprint</p>
+                                <p class="text-sm font-black text-slate-700">${c.weekly.toFixed(1)} kg</p>
+                            </div>
+                            <div>
+                                <p class="text-[8px] font-bold text-emerald-400 uppercase leading-none mb-1">Green Potential</p>
+                                <p class="text-sm font-black text-emerald-600">-${c.savings.toFixed(1)} kg</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-[8px] font-bold text-slate-400 uppercase leading-none mb-1">${c.dist}km / ${c.days}d</p>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -443,81 +497,52 @@
 
         function updateDeptStats() {
             const totalWeekly = departmentCommuters.reduce((sum, c) => sum + c.weekly, 0);
+            const totalSavings = departmentCommuters.reduce((sum, c) => sum + c.savings, 0);
             const totalYearly = totalWeekly * 52;
             const totalTrees = Math.ceil(totalYearly / 20);
 
             document.getElementById('deptTotalWeekly').innerText = `${totalWeekly.toFixed(2)} kg`;
+            document.getElementById('totalSavings').innerText = `${totalSavings.toFixed(2)} kg`;
             document.getElementById('statCommuters').innerText = departmentCommuters.length;
             document.getElementById('statYearly').innerText = `${totalYearly.toFixed(0)} kg`;
             document.getElementById('statTrees').innerText = totalTrees;
         }
 
         function updateUI() {
-            const sizeSect = document.getElementById('sizeSection');
-            const occupancySect = document.getElementById('occupancySection');
-            
-            sizeSect.style.display = (state.vehicleType === 'car' && state.fuelType !== 'electric') ? 'block' : 'none';
-            occupancySect.style.display = (state.vehicleType !== 'bus') ? 'block' : 'none';
-            
+            document.getElementById('sizeSection').style.display = (state.vehicleType === 'car' && state.fuelType !== 'electric') ? 'block' : 'none';
+            document.getElementById('occupancySection').style.display = (state.vehicleType !== 'bus') ? 'block' : 'none';
             document.getElementById('occupancyLabel').innerText = `${state.occupancy} ${state.occupancy === 1 ? 'person' : 'people'}`;
             document.getElementById('distanceLabel').innerText = `${state.distance} km`;
 
-            renderModeButtons();
-            renderFuelButtons();
-            renderSizeButtons();
-            renderAgeButtons();
-            renderDayButtons();
-        }
-
-        function renderModeButtons() {
             ['car', 'motorcycle', 'bus'].forEach(m => {
                 const btn = document.getElementById(`mode-${m}`);
-                btn.className = `py-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all active:scale-95 ${
-                    state.vehicleType === m ? 'mode-active' : 'text-slate-400 border-slate-100'
-                }`;
+                btn.className = `py-3 rounded-xl border-2 flex flex-col items-center gap-1.5 transition-all ${state.vehicleType === m ? 'mode-active' : 'text-slate-400 border-slate-100'}`;
             });
-        }
 
-        function renderFuelButtons() {
-            const cont = document.getElementById('fuelSelector');
-            const fuels = Object.keys(EMISSION_FACTORS[state.vehicleType]);
-            cont.innerHTML = fuels.map(f => `
-                <button onclick="updateState({fuelType: '${f}'})" 
-                        class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all active:scale-95 ${state.fuelType === f ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
-                    ${f.charAt(0).toUpperCase() + f.slice(1)}
+            const fuelsCont = document.getElementById('fuelSelector');
+            fuelsCont.innerHTML = Object.keys(EMISSION_FACTORS[state.vehicleType]).map(f => `
+                <button onclick="updateState({fuelType: '${f}'})" class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all ${state.fuelType === f ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
+                    ${f.toUpperCase()}
                 </button>
             `).join('');
-        }
 
-        function renderSizeButtons() {
-            const cont = document.getElementById('sizeSelector');
-            const sizes = ['compact', 'sedan', 'suv', 'truck'];
-            cont.innerHTML = sizes.map(s => `
-                <button onclick="updateState({size: '${s}'})" 
-                        class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all active:scale-95 ${state.size === s ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
-                    ${s.charAt(0).toUpperCase() + s.slice(1)}
+            const sizesCont = document.getElementById('sizeSelector');
+            sizesCont.innerHTML = ['compact', 'sedan', 'suv', 'truck'].map(s => `
+                <button onclick="updateState({size: '${s}'})" class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all ${state.size === s ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
+                    ${s.toUpperCase()}
                 </button>
             `).join('');
-        }
 
-        function renderAgeButtons() {
-            const cont = document.getElementById('ageSelector');
-            const ages = ['vintage', 'classic', 'modern'];
-            cont.innerHTML = ages.map(a => `
-                <button onclick="updateState({age: '${a}'})" 
-                        class="px-1.5 py-2 rounded-lg text-[8px] font-bold border transition-all active:scale-95 text-center ${state.age === a ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
+            const agesCont = document.getElementById('ageSelector');
+            agesCont.innerHTML = ['vintage', 'classic', 'modern'].map(a => `
+                <button onclick="updateState({age: '${a}'})" class="px-1.5 py-2 rounded-lg text-[8px] font-bold border transition-all text-center ${state.age === a ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
                     ${a === 'vintage' ? 'BS-III' : a === 'classic' ? 'BS-IV/VI' : 'BS-VI.2'}
                 </button>
             `).join('');
-        }
 
-        function renderDayButtons() {
-            const cont = document.getElementById('daySelector');
-            cont.innerHTML = [1, 2, 3, 4, 5, 6, 7].map(d => `
-                <button onclick="updateState({days: ${d}})" 
-                        class="flex-1 py-2 text-[10px] font-black rounded-lg border-2 transition-all active:scale-95 ${state.days === d ? 'day-active' : 'bg-white text-slate-400 border-slate-100'}">
-                    ${d}
-                </button>
+            const daysCont = document.getElementById('daySelector');
+            daysCont.innerHTML = [1, 2, 3, 4, 5, 6, 7].map(d => `
+                <button onclick="updateState({days: ${d}})" class="flex-1 py-2 text-[10px] font-black rounded-lg border-2 transition-all ${state.days === d ? 'day-active' : 'bg-white text-slate-400 border-slate-100'}">${d}</button>
             `).join('');
         }
 
