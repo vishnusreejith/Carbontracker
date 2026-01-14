@@ -111,35 +111,34 @@
                     <h3 class="font-bold text-slate-900 text-base mb-2">1. Core Equations</h3>
                     <div class="bg-slate-50 p-4 rounded-2xl space-y-4 border border-slate-100">
                         <div>
-                            <p class="font-semibold text-slate-700 mb-1">Weekly Distance (Dw):</p>
-                            <code class="text-blue-600 font-bold block bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto">
-                                Dw = d × 2 × n
-                            </code>
-                        </div>
-                        <div>
                             <p class="font-semibold text-slate-700 mb-1 text-xs">Indiv. Weekly Emissions (Ew):</p>
-                            <code class="text-blue-600 font-bold block bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto">
-                                Ew = (Dw × EF) / Occupants
+                            <code class="text-blue-600 font-bold block bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto text-xs">
+                                Ew = ((d × 2 × n) × EF × Age_Mult) / Occupants
                             </code>
                         </div>
                     </div>
                 </section>
 
                 <section>
-                    <h3 class="font-bold text-slate-900 text-base mb-2">2. Factors (kg CO2e/km)</h3>
-                    <div class="overflow-x-auto rounded-xl border border-slate-100">
-                        <table class="w-full text-left text-[11px] md:text-xs">
-                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider">
-                                <tr>
-                                    <th class="px-3 py-2">Type</th>
-                                    <th class="px-3 py-2">Gas</th>
-                                    <th class="px-3 py-2">Diesel</th>
-                                    <th class="px-3 py-2">Hybrid</th>
-                                    <th class="px-3 py-2">EV</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100" id="methodologyTableBody"></tbody>
-                        </table>
+                    <h3 class="font-bold text-slate-900 text-base mb-2">2. Factors & Multipliers</h3>
+                    <div class="space-y-4">
+                        <p class="text-[11px] text-slate-500 italic">Multipliers are based on Bharat Stage (BS) and Euro emission norms.</p>
+                        <div class="overflow-x-auto rounded-xl border border-slate-100">
+                            <table class="w-full text-left text-[10px] md:text-xs">
+                                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-3 py-2">Era</th>
+                                        <th class="px-3 py-2">BS Norms</th>
+                                        <th class="px-3 py-2">Multiplier</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr><td class="px-3 py-2 font-bold text-red-500">Vintage</td><td class="px-3 py-2">BS-III / Early IV</td><td class="px-3 py-2 text-center">1.30x</td></tr>
+                                    <tr><td class="px-3 py-2 font-bold text-slate-600">Classic</td><td class="px-3 py-2">BS-IV / BS-VI</td><td class="px-3 py-2 text-center">1.00x</td></tr>
+                                    <tr><td class="px-3 py-2 font-bold text-emerald-600">Modern</td><td class="px-3 py-2">BS-VI Phase 2</td><td class="px-3 py-2 text-center">0.85x</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -216,7 +215,7 @@
                             </div>
 
                             <!-- Options -->
-                            <div id="carOptions" class="space-y-5 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <div id="configOptions" class="space-y-5 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Engine</label>
                                     <div class="flex flex-wrap gap-2" id="fuelSelector"></div>
@@ -224,6 +223,10 @@
                                 <div id="sizeSection">
                                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Size</label>
                                     <div class="flex flex-wrap gap-2" id="sizeSelector"></div>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">BS Norm / Age</label>
+                                    <div class="grid grid-cols-3 gap-1.5" id="ageSelector"></div>
                                 </div>
                                 <div id="occupancySection">
                                     <div class="flex justify-between items-center mb-2">
@@ -303,12 +306,27 @@
     <script>
         // Constants
         const EMISSION_FACTORS = {
-            gasoline: { compact: 0.15, sedan: 0.19, suv: 0.25, truck: 0.32 },
-            diesel: { compact: 0.14, sedan: 0.18, suv: 0.24, truck: 0.30 },
-            hybrid: { compact: 0.08, sedan: 0.10, suv: 0.13 },
-            electric: { all: 0.05 },
-            motorcycle: 0.08,
-            bus: 0.04
+            car: {
+                gasoline: { compact: 0.15, sedan: 0.19, suv: 0.25, truck: 0.32 },
+                diesel: { compact: 0.14, sedan: 0.18, suv: 0.24, truck: 0.30 },
+                hybrid: { compact: 0.08, sedan: 0.10, suv: 0.13 },
+                electric: { all: 0.05 }
+            },
+            motorcycle: {
+                gasoline: { all: 0.08 },
+                electric: { all: 0.02 }
+            },
+            bus: {
+                diesel: { all: 0.04 },
+                hybrid: { all: 0.025 },
+                electric: { all: 0.015 }
+            }
+        };
+
+        const AGE_MULTIPLIERS = {
+            vintage: 1.30, // BS-III or older
+            classic: 1.00, // BS-IV / early BS-VI
+            modern: 0.85   // BS-VI Phase 2
         };
 
         // App State
@@ -316,6 +334,7 @@
             vehicleType: 'car',
             fuelType: 'gasoline',
             size: 'sedan',
+            age: 'classic',
             distance: 10,
             days: 5,
             occupancy: 1
@@ -326,7 +345,6 @@
         // UI Initialization
         function init() {
             lucide.createIcons();
-            renderTable();
             updateUI();
         }
 
@@ -338,6 +356,12 @@
 
         function updateState(newState) {
             state = { ...state, ...newState };
+            
+            // Safety: reset fuelType if it doesn't exist for new mode
+            if (!EMISSION_FACTORS[state.vehicleType][state.fuelType]) {
+                state.fuelType = Object.keys(EMISSION_FACTORS[state.vehicleType])[0];
+            }
+            
             updateUI();
         }
 
@@ -345,20 +369,20 @@
             const nameInput = document.getElementById('commuterName');
             const name = nameInput.value.trim() || `User #${departmentCommuters.length + 1}`;
             
-            let factor = 0;
-            if (state.vehicleType === 'bus') factor = EMISSION_FACTORS.bus;
-            else if (state.vehicleType === 'motorcycle') factor = EMISSION_FACTORS.motorcycle;
-            else if (state.fuelType === 'electric') factor = EMISSION_FACTORS.electric.all;
-            else factor = EMISSION_FACTORS[state.fuelType][state.size] || 0.19;
+            const modeData = EMISSION_FACTORS[state.vehicleType];
+            const fuelData = modeData[state.fuelType];
+            const factor = fuelData[state.size] || fuelData.all;
 
+            const ageMult = AGE_MULTIPLIERS[state.age];
             const divisor = (state.vehicleType === 'bus') ? 1 : state.occupancy;
-            const weekly = (state.distance * 2 * state.days * factor) / divisor;
+            
+            const weekly = (state.distance * 2 * state.days * factor * ageMult) / divisor;
 
             departmentCommuters.push({
                 id: Date.now(),
                 name: name,
                 weekly: weekly,
-                details: `${state.vehicleType}${state.vehicleType !== 'bus' ? ' ('+state.occupancy+'p)' : ''}`,
+                details: `${state.age.toUpperCase()} ${state.fuelType} ${state.vehicleType} (${divisor}p)`,
                 dist: state.distance,
                 days: state.days
             });
@@ -367,7 +391,6 @@
             renderCommuterList();
             updateDeptStats();
             
-            // On mobile, scroll the list into view if adding first item
             if (departmentCommuters.length === 1 && window.innerWidth < 1024) {
                 document.getElementById('commuterList').scrollIntoView({ behavior: 'smooth' });
             }
@@ -383,20 +406,6 @@
             departmentCommuters = departmentCommuters.filter(c => c.id !== id);
             renderCommuterList();
             updateDeptStats();
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('methodologyTableBody');
-            const sizes = ['compact', 'sedan', 'suv', 'truck'];
-            tbody.innerHTML = sizes.map(size => `
-                <tr>
-                    <td class="px-3 py-2 font-bold capitalize">${size}</td>
-                    <td class="px-3 py-2">${EMISSION_FACTORS.gasoline[size] || '—'}</td>
-                    <td class="px-3 py-2">${EMISSION_FACTORS.diesel[size] || '—'}</td>
-                    <td class="px-3 py-2">${EMISSION_FACTORS.hybrid[size] || '—'}</td>
-                    <td class="px-3 py-2">${EMISSION_FACTORS.electric.all}</td>
-                </tr>
-            `).join('');
         }
 
         function renderCommuterList() {
@@ -444,13 +453,11 @@
         }
 
         function updateUI() {
-            const carOpts = document.getElementById('carOptions');
             const sizeSect = document.getElementById('sizeSection');
             const occupancySect = document.getElementById('occupancySection');
             
-            carOpts.style.display = (state.vehicleType === 'car' || state.vehicleType === 'motorcycle') ? 'block' : 'none';
             sizeSect.style.display = (state.vehicleType === 'car' && state.fuelType !== 'electric') ? 'block' : 'none';
-            occupancySect.style.display = (state.vehicleType === 'car' || state.vehicleType === 'motorcycle') ? 'block' : 'none';
+            occupancySect.style.display = (state.vehicleType !== 'bus') ? 'block' : 'none';
             
             document.getElementById('occupancyLabel').innerText = `${state.occupancy} ${state.occupancy === 1 ? 'person' : 'people'}`;
             document.getElementById('distanceLabel').innerText = `${state.distance} km`;
@@ -458,6 +465,7 @@
             renderModeButtons();
             renderFuelButtons();
             renderSizeButtons();
+            renderAgeButtons();
             renderDayButtons();
         }
 
@@ -472,7 +480,7 @@
 
         function renderFuelButtons() {
             const cont = document.getElementById('fuelSelector');
-            const fuels = ['gasoline', 'diesel', 'hybrid', 'electric'];
+            const fuels = Object.keys(EMISSION_FACTORS[state.vehicleType]);
             cont.innerHTML = fuels.map(f => `
                 <button onclick="updateState({fuelType: '${f}'})" 
                         class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all active:scale-95 ${state.fuelType === f ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
@@ -488,6 +496,17 @@
                 <button onclick="updateState({size: '${s}'})" 
                         class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all active:scale-95 ${state.size === s ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
                     ${s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+            `).join('');
+        }
+
+        function renderAgeButtons() {
+            const cont = document.getElementById('ageSelector');
+            const ages = ['vintage', 'classic', 'modern'];
+            cont.innerHTML = ages.map(a => `
+                <button onclick="updateState({age: '${a}'})" 
+                        class="px-1.5 py-2 rounded-lg text-[8px] font-bold border transition-all active:scale-95 text-center ${state.age === a ? 'btn-active-primary' : 'bg-white text-slate-500 border-slate-200'}">
+                    ${a === 'vintage' ? 'BS-III' : a === 'classic' ? 'BS-IV/VI' : 'BS-VI.2'}
                 </button>
             `).join('');
         }
